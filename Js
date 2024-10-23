@@ -1,0 +1,102 @@
+const screen = document.querySelector('#screen');
+const keys = document.querySelector('.calculator-keys');
+
+let currentInput = '0';
+let previousInput = '';
+let operator = '';
+let shouldResetScreen = false;
+
+keys.addEventListener('click', function(event) {
+    const key = event.target;
+    const value = key.value;
+
+    if (!key.matches('button')) return;
+
+    switch (value) {
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+            handleOperator(value);
+            break;
+        case '=':
+            calculate();
+            break;
+        case 'all-clear':
+            resetCalculator();
+            break;
+        case '.':
+            appendDecimal();
+            break;
+        default:
+            appendNumber(value);
+    }
+});
+
+function appendNumber(number) {
+    if (currentInput === '0' || shouldResetScreen) {
+        currentInput = number;
+        shouldResetScreen = false;
+    } else {
+        currentInput += number;
+    }
+    updateScreen();
+}
+
+function appendDecimal() {
+    if (shouldResetScreen) return;
+
+    if (!currentInput.includes('.')) {
+        currentInput += '.';
+    }
+    updateScreen();
+}
+
+function handleOperator(selectedOperator) {
+    if (operator && !shouldResetScreen) {
+        calculate();
+    }
+    operator = selectedOperator;
+    previousInput = currentInput;
+    shouldResetScreen = true;
+}
+
+function calculate() {
+    if (!operator || shouldResetScreen) return;
+
+    let result = '';
+    const previous = parseFloat(previousInput);
+    const current = parseFloat(currentInput);
+
+    switch (operator) {
+        case '+':
+            result = previous + current;
+            break;
+        case '-':
+            result = previous - current;
+            break;
+        case '*':
+            result = previous * current;
+            break;
+        case '/':
+            result = previous / current;
+            break;
+    }
+
+    currentInput = result.toString();
+    operator = '';
+    shouldResetScreen = true;
+    updateScreen();
+}
+
+function updateScreen() {
+    screen.value = currentInput;
+}
+
+function resetCalculator() {
+    currentInput = '0';
+    previousInput = '';
+    operator = '';
+    shouldResetScreen = false;
+    updateScreen();
+}
